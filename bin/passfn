@@ -1,0 +1,20 @@
+#! /usr/bin/env ruby
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+require 'thor'
+require 'passfn'
+ 
+class PassfnCLI < Thor
+  default_command :apply
+  
+  desc 'apply', 'apply master passphrase to domain and get the password'
+  method_option :domain, type: :string, aliases: '-d'
+  def apply
+    domain = options[:domain] || (STDOUT.print 'domain? '; STDIN.gets)
+    passphrase = (STDOUT.print 'passphrase? '; STDIN.noecho(&:gets))
+    STDOUT.puts
+    password = Passfn::Generator.perform(domain, passphrase)
+    STDOUT.puts password
+  end
+end
+ 
+PassfnCLI.start
