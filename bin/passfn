@@ -1,19 +1,46 @@
 #! /usr/bin/env ruby
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 require 'thor'
+require 'clipboard'
 require 'passfn'
  
 class PassfnCLI < Thor
   default_command :apply
   
   desc 'apply', 'apply master passphrase to domain and get the password'
-  method_option :domain, type: :string, aliases: '-d'
+  method_option :copy, {
+    type: :boolean,
+    aliases: '-c',
+    desc: 'copy the password to clipboard'
+  }
+  method_option :domain, {
+    type: :string,
+    aliases: '-d',
+    desc: 'specify domain for the password.'
+  }
+  method_option :quiet, {
+    type: :boolean,
+    default: false,
+    aliases: '-q',
+    desc: 'stop showing prompts and newlines for humans'
+  }
   def apply
-    domain = options[:domain] || (STDOUT.print 'domain? '; STDIN.gets)
-    passphrase = (STDOUT.print 'passphrase? '; STDIN.noecho(&:gets))
-    STDOUT.puts
+    domain = options[:domain] || (print 'domain? '; STDIN.gets.chomp)
+    if options[:quiet]
+      passphrase = STDIN.gets.chomp
+    else
+      passphrase = (STDOUT.print 'passphrase? '; STDIN.noecho(&:gets).chomp)
+      STDOUT.puts
+    end
     password = Passfn::Generator.perform(domain, passphrase)
-    STDOUT.puts password
+    if options[:copy]
+      Clipboard.copy password
+      puts "password for #{domain} is copied into clipboard"
+    elsif options[:quiet]
+      STDOUT.print password
+    else
+      STDOUT.puts password
+    end
   end
 end
  

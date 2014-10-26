@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
     passfn provides a cli command to generate a password
     from a domain and a master passphrase.
   EOD
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/ichiban/passfn"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
@@ -25,4 +25,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 10.0"
 
   spec.add_runtime_dependency "thor", "~> 0.19.1"
+  spec.add_runtime_dependency "clipboard", "~> 1.0.5"
 end
